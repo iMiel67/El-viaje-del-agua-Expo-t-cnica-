@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>El Viaje del Agua - Acueductos Romanos</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(#d8c19b,#f3ead9);color:#2d241b;text-align:center}
+  .wrap{max-width:1050px;margin:auto;padding:18px}
+  h1{margin:5px 0;font-size:38px}
+  .sub{font-size:18px;margin:0 0 14px}
+  .panel{background:#fffaf0;border:3px solid #6d4c31;border-radius:18px;padding:18px;box-shadow:0 5px 15px #0002}
+  button{border:0;border-radius:12px;padding:12px 18px;font-size:17px;font-weight:bold;cursor:pointer;background:#276b8c;color:white;margin:5px}
+  button:hover{transform:scale(1.03)}
+  #game{display:none}
+  .stats{display:flex;justify-content:space-around;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-weight:bold}
+  .stat{background:#ead8b8;padding:9px 15px;border-radius:10px}
+  #scene{position:relative;height:280px;overflow:hidden;border-radius:15px;background:linear-gradient(#bde6ff 0 52%,#b8c58b 52%);border:3px solid #6d4c31}
+  .sun{position:absolute;right:35px;top:20px;width:55px;height:55px;border-radius:50%;background:#f5c94a}
+  .mountain{position:absolute;bottom:95px;width:0;height:0;border-left:120px solid transparent;border-right:120px solid transparent;border-bottom:150px solid #7d8b73}
+  .m1{left:20px}.m2{left:250px;border-bottom-color:#65745f}.m3{right:20px}
+  .road{position:absolute;left:0;right:0;bottom:0;height:75px;background:#c9b18d}
+  .aqueduct{position:absolute;left:5%;right:5%;bottom:72px;height:95px;border-top:18px solid #8e6b45;border-bottom:12px solid #8e6b45;display:flex;gap:12px;padding:0 8px}
+  .arch{flex:1;border:10px solid #8e6b45;border-bottom:0;border-radius:55px 55px 0 0;background:#bde6ff}
+  .water{position:absolute;left:7%;right:7%;bottom:143px;height:7px;background:#248bb4;border-radius:10px;box-shadow:0 0 8px #248bb4}
+  #drop{position:absolute;font-size:35px;left:8%;bottom:151px;transition:left .8s ease}
+  #question{font-size:22px;font-weight:bold;margin:16px 0 10px}
+  #answers{display:flex;justify-content:center;flex-wrap:wrap}
+  #message{min-height:28px;font-size:18px;font-weight:bold;margin-top:8px}
+  .small{font-size:14px;opacity:.8}
+  #end{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="panel" id="start">
+    <h1>🏛️ El Viaje del Agua 💧</h1>
+    <p class="sub">Un reto rápido sobre los acueductos romanos.</p>
+    <p>Responde correctamente y ayuda a la gota a llegar hasta la ciudad romana.</p>
+    <button onclick="startGame()">🚀 ¡Comenzar!</button>
+    <p class="small">Ideal para jugar en una laptop durante la Expo Técnica.</p>
+  </div>
+
+  <div class="panel" id="game">
+    <div class="stats">
+      <div class="stat">⭐ Puntos: <span id="score">0</span></div>
+      <div class="stat">💧 Avance: <span id="progress">0</span>/7</div>
+      <div class="stat">❤️ Intentos: <span id="lives">3</span></div>
+    </div>
+    <div id="scene">
+      <div class="sun"></div>
+      <div class="mountain m1"></div><div class="mountain m2"></div><div class="mountain m3"></div>
+      <div class="road"></div>
+      <div class="aqueduct">
+        <div class="arch"></div><div class="arch"></div><div class="arch"></div>
+        <div class="arch"></div><div class="arch"></div><div class="arch"></div>
+      </div>
+      <div class="water"></div>
+      <div id="drop">💧</div>
+    </div>
+    <div id="question"></div>
+    <div id="answers"></div>
+    <div id="message"></div>
+  </div>
+
+  <div class="panel" id="end">
+    <h1>🎉 ¡Llegaste a Roma!</h1>
+    <p id="finalText"></p>
+    <button onclick="startGame()">🔄 Jugar otra vez</button>
+    <p>🏛️ <b>Acueductos Romanos: El viaje del agua</b></p>
+  </div>
+</div>
+
+<script>
+const qs=[
+ {q:"¿Qué fuerza ayudaba principalmente a mover el agua?",a:["La gravedad","El viento","El fuego"],c:0},
+ {q:"¿Para qué servían los acueductos?",a:["Transportar agua","Construir barcos","Medir el tiempo"],c:0},
+ {q:"¿De dónde podía comenzar el recorrido del agua?",a:["De una fuente natural","De un volcán","Del mar abierto"],c:0},
+ {q:"¿Qué debía tener el canal para que el agua avanzara?",a:["Una pendiente suave","Una pendiente hacia arriba","Ninguna dirección"],c:0},
+ {q:"¿Cuál era un material común en la construcción romana?",a:["Piedra y mortero","Plástico","Cartón"],c:0},
+ {q:"¿Los arcos ayudaban a sostener la estructura?",a:["Sí","No","Solo de noche"],c:0},
+ {q:"¿Qué estamos combinando en este proyecto?",a:["Historia y tecnología","Solo deporte","Solo música"],c:0}
+];
+let i=0,score=0,lives=3;
+function startGame(){
+ i=0;score=0;lives=3;
+ document.getElementById("start").style.display="none";
+ document.getElementById("end").style.display="none";
+ document.getElementById("game").style.display="block";
+ render();
+}
+function render(){
+ document.getElementById("score").textContent=score;
+ document.getElementById("progress").textContent=i;
+ document.getElementById("lives").textContent=lives;
+ document.getElementById("message").textContent="";
+ const q=qs[i];
+ document.getElementById("question").textContent=q.q;
+ const box=document.getElementById("answers"); box.innerHTML="";
+ q.a.forEach((x,n)=>{
+   const b=document.createElement("button"); b.textContent=x;
+   b.onclick=()=>answer(n); box.appendChild(b);
+ });
+ document.getElementById("drop").style.left=(8+(i*13))+"%";
+}
+function answer(n){
+ const q=qs[i];
+ const msg=document.getElementById("message");
+ if(n===q.c){
+   score+=100;
+   msg.textContent="✅ ¡Correcto! La gota avanza.";
+   i++;
+   setTimeout(()=>{
+     if(i>=qs.length) finish(); else render();
+   },650);
+ }else{
+   lives--;
+   msg.textContent="❌ Casi. Esa no es la respuesta.";
+   if(lives<=0){ setTimeout(finish,700); }
+   else { setTimeout(render,700); }
+ }
+}
+function finish(){
+ document.getElementById("game").style.display="none";
+ document.getElementById("end").style.display="block";
+ let text;
+ if(score===700) text="¡Puntuación perfecta! 🏆 Sabes muchísimo sobre los acueductos romanos.";
+ else if(score>=500) text="¡Excelente! 🌟 Ya eres casi un experto en el viaje del agua.";
+ else if(score>=300) text="¡Muy bien! 👏 Aprendiste cómo los romanos llevaban agua a sus ciudades.";
+ else text="¡Buen intento! 💪 Ahora ya conoces un poco más sobre los acueductos.";
+ document.getElementById("finalText").textContent=text+" Tu puntuación fue "+score+" puntos.";
+}
+</script>
+</body>
+</html>
